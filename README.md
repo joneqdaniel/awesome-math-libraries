@@ -38,6 +38,12 @@ Protoype example outline of n-dim fixed static extents arbitrary alignable seria
 #include <functional>
 #include <ranges>
 
+#ifdef _MSC_VER
+#define INLINE __force_inline __flatten __declspec(nothrow) __declspec(noalias) inline
+#else
+#define INLINE __attribute__((always_inline,flatten,nothrow,const)) inline
+#endif
+
 template<class T>
 concept sca = std::integral<T> || std::floating_point<T>;
 
@@ -94,7 +100,7 @@ struct ari
 {
         /* plus operators example */
         template<typename T_OTHER>
-        T_THIS& operator+=(const T_OTHER &rhs) requires(!sca<T_OTHER>)
+        INLINE T_THIS& operator+=(const T_OTHER &rhs) requires(!sca<T_OTHER>)
         {
                 using this_type  = typeof((*(T_THIS*)this)[0]);
                 using other_type = typeof(rhs[0]);
@@ -108,7 +114,7 @@ struct ari
         }
 
         template<typename T_OTHER>
-        T_THIS& operator+=(const T_OTHER &rhs) requires(sca<T_OTHER>)
+        INLINE T_THIS& operator+=(const T_OTHER &rhs) requires(sca<T_OTHER>)
         {
                 using this_type  = typeof((*(T_THIS*)this)[0]);
                 using other_type = typeof(rhs);
@@ -122,7 +128,7 @@ struct ari
         }
 
         template<typename T_OTHER>
-        friend T_THIS operator+(T_THIS lhs, const T_OTHER& rhs)
+        friend INLINE T_THIS operator+(T_THIS lhs, const T_OTHER& rhs)
         {
                 lhs += rhs;
                 return lhs;
@@ -137,8 +143,8 @@ struct vec : buf<T,N,A>, ari<vec<T,N,A>>, geo<T>
         static constexpr enum nfo nfo = G;
         static constexpr enum ori ori = O;
 
-        void draw() {}
-        void print(ssize_t n = -1)
+        INLINE void draw() {}
+        INLINE void print(ssize_t n = -1)
         {
               printf("[");
               n = n > -1 ? n : this->size();
@@ -265,6 +271,9 @@ See: [Microsoft Visual Studio OpenMP SIMD](https://learn.microsoft.com/en-us/cpp
 - [hogsy/chronon][29]
 - [paulbaker/q3bsp][38]
 - [Engine ports at NephatrineCode][41]
+
+## Pascal Math Libraries
+- [LMath](https://sourceforge.net/projects/lmath-library/)
 
 [1]: https://isocpp.org/
 [2]: https://github.com/KhronosGroup/OpenGL-Registry/blob/main/api/GL/glcorearb.h
