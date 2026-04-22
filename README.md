@@ -8,7 +8,7 @@ Existing cross platform SIMD implementations with style, of interest:
 - [linalg](https://github.com/sgorsten/linalg/)
 - [cmtd](github.com/uonrobotics/ctmd/)
 
-The only portable usable n-dim serializable and arbitrarly alignable type of static extents seems to be a fixed std::array based type with added standard operators using `std::transform` and OpenMP. If available in C++26 compiler add `std::submdspan` and static extent aligned type view later. Implementing Cross/Hodge/Laplace/Motor is necessary.
+The only portable usable n-dim serializable and arbitrarly alignable type of static extents seems to be a fixed std::array based type with added standard operators using `std::transform` and OpenMP. If available in C++26 compiler add `std::simd`, `std::submdspan` and static extent aligned type view later. Implementing Cross/Hodge/Laplace/Motor is necessary.
 
 The following GCC/clang options are necessary to generate SIMD code output.
 ```sh
