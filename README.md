@@ -25,7 +25,7 @@ enum class alg
 #define INLINE __attribute__((always_inline),(nothrow),(const),(flatten)) inline
 #endif
 ```
-- C++ `std::array<T,N>` (aligned if N==N_POW2) using OpenMP and INLINE for members and operators
+- C++ `std::array<T,N>` (aligned if N==N_POW2) using OpenMP and INLINE for members/operators
 ```cpp
 template<typename T,size_t N, size_t N_POW2 = std::bit_ceil<size_t>(N)>
 struct alignas((N == N_POW2 ? N : 1) * alignof(T)) vec<T,N> : std::array<T,N>;
