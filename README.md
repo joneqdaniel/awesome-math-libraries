@@ -19,6 +19,32 @@ enum class alg
         std = 1 << 8, /* N == N_POW2 ? vec/mat/other : sca             */
 };
 ```
+#### Types
+- C++ std::array
+```cpp
+template<typename T,size_t N, size_t N_POW2 = std::bit_ceil<size_t>(N)>
+struct alignas((N == N_POW2 ? N : 1) * alignof(T)) vec<T,N> : std::array<T,N>
+{
+};
+```
+- GCC
+```cpp
+typeof(T __attribute__((vector_size(std::bit_ceil<size_t>(N))))
+static_assert(countof(vec<T,N>) == N_POW2)
+static_assert(sizeof(vec<T,N>) == (N_POW2 * sizeof(T)))
+```
+- LLVM 
+```cpp
+typeof(T __attribute__((ext_vector_type(N))))
+static_assert(__builtin_elementcount(vec<T,N>) == N && countof(vec<T,N>) == N_POW2)
+static_assert(sizeof(vec<T,N>) == (N_POW2 * sizeof(T)))
+```
+- C++ std::simd
+- C++ std::submdspan
+- C/C++ SoA/AoS
+- C style array
+- C/C++ platform specific SIMD intrinsic builtins
+
 ### API
 - [OpenMP](https://www.openmp.org/)
 - [OpenCL](https://www.khronos.org/opencl/)
