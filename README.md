@@ -61,9 +61,6 @@ static_assert(sizeof(vec(T,N)) == (N_POW2 * sizeof(T)));
 - [ISO C++](https://isocpp.org/)
 - [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/)
 - [kokkos](https://github.com/kokkos/kokkos/)
-- [NumKong](https://github.com/ashvardanian/NumKong)
-- [linalg](https://github.com/sgorsten/linalg/)
-- [cmtd](github.com/uonrobotics/ctmd/)
 ### C/C++ Preprocessor
 - [HolyBlackCat/math](https://github.com/HolyBlackCat/math/)
 - [HolyBlackCat/macro_sequence_for](https://github.com/HolyBlackCat/macro_sequence_for)
@@ -80,6 +77,7 @@ static_assert(sizeof(vec(T,N)) == (N_POW2 * sizeof(T)));
 - [ctmd](https://github.com/uonrobotics/ctmd/)
 - [linalg](https://github.com/sgorsten/linalg/)
 - [lapack](https://github.com/Reference-LAPACK/lapack)
+- [NumKong](https://github.com/ashvardanian/NumKong)
 - [oneAPI/mkl](https://github.com/oneapi-src)
 - [glm](https://github.com/g-truc/glm/)
 - [ITK](https://github.com/InsightSoftwareConsortium/ITK)
