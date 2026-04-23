@@ -3,7 +3,7 @@ Collection of math libraries in different programming languages
 
 ## Essential Readings
 ### Basics
-#### Type alignment
+#### Types
 ```cpp
 enum class alg
 {
@@ -18,32 +18,37 @@ enum class alg
         oct = 1 << 7,
         std = 1 << 8, /* N == N_POW2 ? vec/mat/other : sca             */
 };
+
+#ifdef _MSC_VER
+#define INLINE __force_inline __flatten __declspec(noalias) __declspec(nothrow) inline
+#else
+#define INLINE __attribute__((always_inline),(nothrow),(const),(flatten)) inline
+#endif
 ```
-#### Types
-- C++ std::array
+- C++ `std::array<T,N>` (aligned if N==N_POW2) using OpenMP and INLINE for members and operators
 ```cpp
 template<typename T,size_t N, size_t N_POW2 = std::bit_ceil<size_t>(N)>
-struct alignas((N == N_POW2 ? N : 1) * alignof(T)) vec<T,N> : std::array<T,N>
-{
-};
+struct alignas((N == N_POW2 ? N : 1) * alignof(T)) vec<T,N> : std::array<T,N>;
+static_assert(countof(vec<T,N>) == N)
+static_assert(sizeof(vec<T,N>) == (N * sizeof(T)))
 ```
-- GCC
+- GCC `__attribute__((vector_size(N_POW2 * sizeof(T))))` with OpenMP, preprocessor and INLINE
 ```cpp
 typeof(T __attribute__((vector_size(std::bit_ceil<size_t>(N))))
 static_assert(countof(vec<T,N>) == N_POW2)
 static_assert(sizeof(vec<T,N>) == (N_POW2 * sizeof(T)))
 ```
-- LLVM 
+- LLVM `__attribute__((ext_vector_type(N)))` with OpenMP, preprocessor and INLINE
 ```cpp
 typeof(T __attribute__((ext_vector_type(N))))
 static_assert(__builtin_elementcount(vec<T,N>) == N && countof(vec<T,N>) == N_POW2)
 static_assert(sizeof(vec<T,N>) == (N_POW2 * sizeof(T)))
 ```
+- C array (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
+- C struct (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
 - C++ std::simd
 - C++ std::submdspan
-- C/C++ SoA/AoS
-- C style array
-- C/C++ platform specific SIMD intrinsic builtins
+- C/C++ SIMD platform specific intrinsic builtins
 
 ### API
 - [OpenMP](https://www.openmp.org/)
