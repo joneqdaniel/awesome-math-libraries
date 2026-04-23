@@ -3,7 +3,7 @@ Collection of math libraries in different programming languages
 
 ## Essential Readings
 ### Basics
-### Type alignment
+#### Type alignment
 ```cpp
 enum class alg
 {
@@ -20,7 +20,6 @@ enum class alg
 };
 ```
 ### API
-- [OpenMP](https://github.com/openmp) supported by mainstream compilers GCC/Clang/MSVC parallel SIMD
 - [OpenMP](https://www.openmp.org/)
 - [OpenCL](https://www.khronos.org/opencl/)
 - [OpenGL/KHR](https://github.com/KhronosGroup/OpenGL-Registry/blob/main/api/GL/glcorearb.h)
