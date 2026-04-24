@@ -52,7 +52,7 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 #### LLVM `typeof(T __attribute__((ext_vector_type(N))))`
 ```cpp
 #define vec(T,N) typeof(T __attribute__((ext_vector_type(N))))
-static_assert(__builtin_elementcount(vec(T,N)) == N && countof(vec(T,N)) == bitceil(N));
+static_assert(__builtin_vectorelements(vec(T,N)) == N && countof(vec(T,N)) == bitceil(N));
 static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
 #### C++ std::simd
