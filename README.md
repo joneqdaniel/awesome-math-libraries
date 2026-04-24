@@ -24,6 +24,14 @@ enum class alg
 #else
 #define INLINE __attribute__((always_inline),(nothrow),(const),(flatten)) inline
 #endif
+
+#define BITOP_RUP01__(x) (             (x) | (             (x) >>  1))
+#define BITOP_RUP02__(x) (BITOP_RUP01__(x) | (BITOP_RUP01__(x) >>  2))
+#define BITOP_RUP04__(x) (BITOP_RUP02__(x) | (BITOP_RUP02__(x) >>  4))
+#define BITOP_RUP08__(x) (BITOP_RUP04__(x) | (BITOP_RUP04__(x) >>  8))
+#define BITOP_RUP16__(x) (BITOP_RUP08__(x) | (BITOP_RUP08__(x) >> 16))
+
+#define bitceil(x) (const uint32_t)(BITOP_RUP16__(((uint32_t)(x)) - 1) + 1)
 ```
 ##### C++ `std::array<T,N>` (aligned if N==N_POW2) using OpenMP and INLINE for members/operators
 ```cpp
@@ -34,15 +42,15 @@ static_assert(sizeof(vec<T,N>) == (N * sizeof(T)));
 ```
 ##### GCC `typeof(T __attribute__((vector_size(N_POW2 * sizeof(T)))))` with OpenMP, preprocessor and INLINE
 ```cpp
-#define vec(T,N) typeof(T __attribute__((vector_size(std::bit_ceil<size_t>(N)))))
-static_assert(countof(vec(T,N)) == N_POW2);
-static_assert(sizeof(vec(T,N)) == (N_POW2 * sizeof(T)));
+#define vec(T,N) typeof(T __attribute__((vector_size(bitceil(N)))))
+static_assert(countof(vec(T,N)) == bitceil(N));
+static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
 ##### LLVM `typeof(T __attribute__((ext_vector_type(N))))` with OpenMP, preprocessor and INLINE
 ```cpp
 #define vec(T,N) typeof(T __attribute__((ext_vector_type(N))))
-static_assert(__builtin_elementcount(vec(T,N)) == N && countof(vec(T,N)) == N_POW2);
-static_assert(sizeof(vec(T,N)) == (N_POW2 * sizeof(T)));
+static_assert(__builtin_elementcount(vec(T,N)) == N && countof(vec(T,N)) == bitceil(N));
+static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
 ##### C array (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
 ##### C struct (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
