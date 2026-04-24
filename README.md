@@ -4,6 +4,9 @@ Collection of math libraries in different programming languages
 ## Essential Readings
 ### Types
 #### Basics
+1. use `INLINE`for and `OpenMP` in functions accessing the type.
+2. use `-ftree-vectorize -fopenmp -fopenmp-simd -O3 -march=<your target ARCH> -mfpmath=<your SIMD> -std=[gnu|c++]23`
+
 ```cpp
 enum class alg
 {
@@ -33,29 +36,29 @@ enum class alg
 
 #define bitceil(x) (const uint32_t)(BITOP_RUP16__(((uint32_t)(x)) - 1) + 1)
 ```
-#### C++ `std::array<T,N>` (aligned if N==N_POW2) using OpenMP and INLINE for members/operators
+#### C++ `std::array<T,N>`
 ```cpp
 template<typename T,size_t N, size_t N_POW2 = std::bit_ceil<size_t>(N)>
 struct alignas((N == N_POW2 ? N : 1) * alignof(T)) vec<T,N> : std::array<T,N> {};
 static_assert(countof(vec<T,N>) == N);
 static_assert(sizeof(vec<T,N>) == (N * sizeof(T)));
 ```
-#### GCC `typeof(T __attribute__((vector_size(N_POW2 * sizeof(T)))))` with OpenMP, preprocessor and INLINE
+#### GCC `typeof(T __attribute__((vector_size(N_POW2 * sizeof(T)))))`
 ```cpp
 #define vec(T,N) typeof(T __attribute__((vector_size(bitceil(N)))))
 static_assert(countof(vec(T,N)) == bitceil(N));
 static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
-#### LLVM `typeof(T __attribute__((ext_vector_type(N))))` with OpenMP, preprocessor and INLINE
+#### LLVM `typeof(T __attribute__((ext_vector_type(N))))`
 ```cpp
 #define vec(T,N) typeof(T __attribute__((ext_vector_type(N))))
 static_assert(__builtin_elementcount(vec(T,N)) == N && countof(vec(T,N)) == bitceil(N));
 static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
-#### C array (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
-#### C struct (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
 #### C++ std::simd
 #### C++ std::submdspan
+#### C array
+#### C struct
 #### C/C++ SIMD platform specific intrinsic builtins
 
 ### API
@@ -67,7 +70,6 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 - [Microsoft Visual Studio OpenMP SIMD](https://learn.microsoft.com/en-us/cpp/parallel/openmp/openmp-simd?view=msvc-180)
 ### C++
 - [ISO C++](https://isocpp.org/)
-- [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/)
 - [kokkos](https://github.com/kokkos/kokkos/)
 ### C/C++ Preprocessor
 - [HolyBlackCat/math](https://github.com/HolyBlackCat/math/)
@@ -95,7 +97,6 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 - [CML](https://github.com/demianmnave/CML)
 - [mr-math](https://github.com/4J-company/mr-math/)
 - [versor](https://github.com/wolftype/versor/)
-- [cutlass](https://github.com/NVIDIA/cutlass/)
 - [eve](https://github.com/jfalcou/eve/)
 - [nicemath](https://github.com/nicebyte/nicemath/)
 - [highway](https://github.com/google/highway)
@@ -111,6 +112,9 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 - [cgal](https://github.com/CGAL/cgal)
 - [qhull](https://github.com/qhull/qhull)
 - [muparser](https://github.com/beltoforion/muparser)
+### NVIDIA
+- [cutlass](https://github.com/NVIDIA/cutlass/)
+- [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/)
 ### Quake
 - [TrenchBroom/vm](https://github.com/TrenchBroom/TrenchBroom/tree/master/lib/vm)
 - [ericwa/ericw-tools](https://github.com/ericwa/ericw-tools/blob/main/include/common/qvec.hh)
