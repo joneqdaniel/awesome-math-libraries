@@ -52,11 +52,11 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 static_assert(__builtin_elementcount(vec(T,N)) == N && countof(vec(T,N)) == bitceil(N));
 static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
-##### C array (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
-##### C struct (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
-##### C++ std::simd
-##### C++ std::submdspan
-##### C/C++ SIMD platform specific intrinsic builtins
+#### C array (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
+#### C struct (aligned if N==N_POW2) with OpenMP, preprocessor and INLINE
+#### C++ std::simd
+#### C++ std::submdspan
+#### C/C++ SIMD platform specific intrinsic builtins
 
 ### API
 - [OpenMP](https://www.openmp.org/)
