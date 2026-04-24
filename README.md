@@ -107,6 +107,9 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 - [ensmallen](https://github.com/mlpack/ensmallen)
 - [bandicoot](https://gitlab.com/bandicoot-lib/bandicoot-code)
 - [flint](https://github.com/flintlib/flint)
+- [libigl](https://github.com/libigl/libigl)
+- [cgal](https://github.com/CGAL/cgal)
+- [qhull](https://github.com/qhull/qhull)
 ### Quake
 - [TrenchBroom/vm](https://github.com/TrenchBroom/TrenchBroom/tree/master/lib/vm)
 - [ericwa/ericw-tools](https://github.com/ericwa/ericw-tools/blob/main/include/common/qvec.hh)
