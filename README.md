@@ -2,8 +2,8 @@
 Collection of math libraries in different programming languages
 
 ## Essential Readings
-### Basics
-#### Types
+### Types
+#### Basics
 ```cpp
 enum class alg
 {
@@ -33,20 +33,20 @@ enum class alg
 
 #define bitceil(x) (const uint32_t)(BITOP_RUP16__(((uint32_t)(x)) - 1) + 1)
 ```
-##### C++ `std::array<T,N>` (aligned if N==N_POW2) using OpenMP and INLINE for members/operators
+#### C++ `std::array<T,N>` (aligned if N==N_POW2) using OpenMP and INLINE for members/operators
 ```cpp
 template<typename T,size_t N, size_t N_POW2 = std::bit_ceil<size_t>(N)>
 struct alignas((N == N_POW2 ? N : 1) * alignof(T)) vec<T,N> : std::array<T,N> {};
 static_assert(countof(vec<T,N>) == N);
 static_assert(sizeof(vec<T,N>) == (N * sizeof(T)));
 ```
-##### GCC `typeof(T __attribute__((vector_size(N_POW2 * sizeof(T)))))` with OpenMP, preprocessor and INLINE
+#### GCC `typeof(T __attribute__((vector_size(N_POW2 * sizeof(T)))))` with OpenMP, preprocessor and INLINE
 ```cpp
 #define vec(T,N) typeof(T __attribute__((vector_size(bitceil(N)))))
 static_assert(countof(vec(T,N)) == bitceil(N));
 static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
-##### LLVM `typeof(T __attribute__((ext_vector_type(N))))` with OpenMP, preprocessor and INLINE
+#### LLVM `typeof(T __attribute__((ext_vector_type(N))))` with OpenMP, preprocessor and INLINE
 ```cpp
 #define vec(T,N) typeof(T __attribute__((ext_vector_type(N))))
 static_assert(__builtin_elementcount(vec(T,N)) == N && countof(vec(T,N)) == bitceil(N));
