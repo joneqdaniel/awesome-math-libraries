@@ -35,6 +35,29 @@ enum class alg
 #define BITOP_RUP16__(x) (BITOP_RUP08__(x) | (BITOP_RUP08__(x) >> 16))
 
 #define bitceil(x) (const uint32_t)(BITOP_RUP16__(((uint32_t)(x)) - 1) + 1)
+#define countof(x) sizeof(x)/sizeof((x)[0]) 
+#define isarray(a) __builtin_choose_expr(__builtin_types_compatible_p(typeof((a)[0]) [], typeof((a))), true, false)
+
+/* WARNING: vec_ext_countof(a) return different results in GCC/LLVM for non-power two element count */
+/* TODO: find a way to return vector element count for non-power of two vectors in GCC */
+#if defined(__clang__)
+/* vec_ext(t,n) for LLVM SIMD Vector Extension */
+#pragma pack(push,1)
+#define vec_ext_countof(a) __builtin_vectorelements(a)
+#define vec_ext(t,n) typeof(t __attribute__((ext_vector_type(n))))
+#define isvector(a) __builtin_choose_expr(bitceil(vec_ext_countof(a)) == countof(a), true, false)
+#pragma pack(pop)
+#elif defined(__GNUC__)
+/* vec_ext(t,n) for GCC SIMD Vector Extension */
+#pragma pack(push,1)
+#define vec_ext_countof(a) countof(a)
+#define vec_ext(t,n) typeof(t __attribute__((vector_size(bitceil(n) * alignof(t)))))
+#define isvector(a) _Generic(__builtin_convertvector(a,vec_ext(float,vec_ext_countof(a))), vec_ext(float,bitceil(vec_ext_countof(a))): true, default: false)
+#pragma pack(pop)
+#elif defined(_MSC_VER)
+/* TODO: support different intrinisics and OpenMP */
+#error "Microsoft Visual Studio C/C++ compiler doesn't support SIMD Vector extensions"
+#endif
 ```
 #### C++ `std::array<T,N>`
 ```cpp
