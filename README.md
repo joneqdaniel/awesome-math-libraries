@@ -49,7 +49,9 @@ enum class alg
 #define rc_vec(src,n) (*(vec(typeof((src)[0]),n)*)__builtin_addressof(src))
 #define rc_vec_ext(src,n) (*(vec_ext(typeof((src)[0]),n)*)__builtin_addressof(src))
 #define vec_ext_countof(a) __builtin_vectorelements(rc_vec_ext(a,countof(a)))
-#define isvector(a) __builtin_choose_expr(bitceil(vec_ext_countof(a)) == countof(a),true,false)
+#define isvector(a) !isarray(a) && \
+__builtin_choose_expr( \
+bitceil(vec_ext_countof(a)) == countof(a),true,false)
 
 /* vec_ext(t,n) for GCC SIMD Vector Extension */
 #elif defined(__GNUC__)
@@ -60,15 +62,11 @@ enum class alg
 #define rc_vec(src,n) (*(vec(typeof((src)[0]),n)*)&src)
 #define rc_vec_ext(src,n) (*(vec_ext(typeof((src)[0]),n)*)&src)
 #define vec_ext_countof(a) countof(a)
-
-#define isvector(a) __builtin_choose_expr(isarray(a),false, \
-_Generic( \
-  __builtin_convertvector( \
-    rc_vec_ext(a,vec_ext_countof(a)), \
-    vec_ext(float, \
-    bitceil(vec_ext_countof(a)))), \
-  vec_ext(float,bitceil(vec_ext_countof(a)) \
-): true, default: false))
+#define isvector(a) !isarray(a) && \
+_Generic(__builtin_convertvector(rc_vec_ext(a,vec_ext_countof(a)), \
+         vec_ext(float,bitceil(vec_ext_countof(a)))), \
+         vec_ext(float,bitceil(vec_ext_countof(a))): true, \
+         default: false)
 
 /* vec_ext(T,N) for Microsoft Visual Studio C++ compiler */
 #elif defined(_MSC_VER)
