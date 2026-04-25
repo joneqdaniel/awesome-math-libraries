@@ -81,6 +81,39 @@ _Generic(__builtin_convertvector(rc_vec_ext(a,vec_ext_countof(a)), \
 #warn "Using aligned arrays without operators instead."
 #endif
 ```
+Dot product example:
+```c
+#include "array.h"
+
+#define dot(_a,_b,_t,_n,_i) \
+({ \
+        _t _dst = (_t)_i; \
+        static_assert((isarray(_a) || isvector(_a)),"ERROR: dot - a is not of array or vector type!"); \
+        static_assert((isarray(_b) || isvector(_b)),"ERROR: dot - b is not of array or vector type!"); \
+        size_t len = (size_t)llabs((ssize_t)_n); \
+        len = MIN(MIN(!isarray(_a) ? vec_ext_countof(_a) : countof(_a), \
+                      !isarray(_b) ? vec_ext_countof(_b) : countof(_b)), \
+                  (ssize_t)_n>0?len:0); \
+        _Pragma("omp simd reduction(+:_dst)") \
+        for(size_t j = 0; j < len; j++) \
+               _dst += (_t)((_a)[j]) * (_t)((_b)[j]); \
+	_dst; \
+})
+
+typedef float real;
+#define array(t,n) alignas((n == bitceil(n) ? n : 1) * alignof(t)) typeof(t[n])
+
+#define dot3(a,b) dot((a),(b),real,3,0)
+#define dot4(a,b) dot((a),(b),real,4,0)
+
+int main(int argc, char** argv)
+{
+        vec_ext(real,3) a = { 1,  3, -5};
+        array(real,3)   b = { 4, -2, -1};
+        printf("%+e %+e\n", dot3(a,b),dot3(b,a));
+        exit(EXIT_SUCCESS);
+}
+```
 #### C++ `std::array<T,N>`
 ```cpp
 template<typename T,size_t N, size_t N_POW2 = std::bit_ceil<size_t>(N)>
