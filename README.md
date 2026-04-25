@@ -68,6 +68,7 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 - [SYCL Overview](https://www.khronos.org/sycl/)
 - [Microsoft/DirectXMath](https://github.com/Microsoft/DirectXMath/)
 - [Microsoft Visual Studio OpenMP SIMD](https://learn.microsoft.com/en-us/cpp/parallel/openmp/openmp-simd?view=msvc-180)
+- [Vectorization optimization in GCC](https://developers.redhat.com/articles/2023/12/08/vectorization-optimization-gcc#other_examples)
 ### C++
 - [ISO C++](https://isocpp.org/)
 - [kokkos](https://github.com/kokkos/kokkos/)
