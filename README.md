@@ -81,36 +81,58 @@ _Generic(__builtin_convertvector(rc_vec_ext(a,vec_ext_countof(a)), \
 #warn "Using aligned arrays without operators instead."
 #endif
 ```
-Dot product example:
+Dot/Cross3 product example:
 ```c
 #include "array.h"
 
-#define dot(_a,_b,_t,_n,_i) \
+#define dot(a,b,t,n,i) \
 ({ \
-        _t _dst = (_t)_i; \
-        static_assert((isarray(_a) || isvector(_a)),"ERROR: dot - a is not of array or vector type!"); \
-        static_assert((isarray(_b) || isvector(_b)),"ERROR: dot - b is not of array or vector type!"); \
-        size_t len = (size_t)llabs((ssize_t)_n); \
-        len = MIN(MIN(!isarray(_a) ? vec_ext_countof(_a) : countof(_a), \
-                      !isarray(_b) ? vec_ext_countof(_b) : countof(_b)), \
-                  (ssize_t)_n>0?len:0); \
+        t _dst = (t)i; \
+        static_assert((isarray(a) || isvector(a)),"ERROR: dot - a is not of array or vector type!"); \
+        static_assert((isarray(b) || isvector(b)),"ERROR: dot - b is not of array or vector type!"); \
+        size_t len = (size_t)llabs((ssize_t)n); \
+        len = MIN(MIN(!isarray(a) ? vec_countof(a) : countof(a), \
+                      !isarray(b) ? vec_countof(b) : countof(b)), \
+                  (ssize_t)n>0?len:0); \
         _Pragma("omp simd reduction(+:_dst)") \
         for(size_t j = 0; j < len; j++) \
-               _dst += (_t)((_a)[j]) * (_t)((_b)[j]); \
-	_dst; \
+               _dst += (t)((a)[j]) * (t)((b)[j]); \
+        _dst; \
 })
 
 typedef float real;
-#define array(t,n) alignas((n == bitceil(n) ? n : 1) * alignof(t)) typeof(t[n])
 
-#define dot3(a,b) dot((a),(b),real,3,0)
-#define dot4(a,b) dot((a),(b),real,4,0)
+#define dot3(a,b) dot(a,b,real,3,0)
+#define dot4(a,b) dot(a,b,real,4,0)
 
+#define perm3(a,x,y,z,t,n)   (vec(t,n)){ (t)(a)[x], (t)(a)[y], (t)(a)[z] }
+#define perm4(a,x,y,z,w,t,n) (vec(t,n)){ (t)(a)[x], (t)(a)[y], (t)(a)[z], (t)(a)[w] }
+#define rc_cross3(a,b,t,n) perm3(a,1,2,0,t,n) * perm3(b,2,0,1,t,n) - perm3(a,2,0,1,t,n) * perm3(b,1,2,0,t,n)
+#define cross3(a,b) rc_cross3(a,b,typeof((rc_vec(a,3) * rc_vec(b,3))[0]),3)
+
+void usage(int argc, char** argv)
+{
+        fprintf(stderr,"Usage: %s NUM NUM NUM NUM NUM NUM\n", argv[0]);
+}
 int main(int argc, char** argv)
 {
-        vec_ext(real,3) a = { 1,  3, -5};
-        array(real,3)   b = { 4, -2, -1};
-        printf("%+e %+e\n", dot3(a,b),dot3(b,a));
+        if(argc < 7) { usage(argc,argv); exit(EXIT_FAILURE); }
+
+        vec(real,3)  a = { (real)strtod(argv[1],NULL), (real)strtod(argv[2],NULL), (real)strtod(argv[3],NULL) };
+        arr(real,3)  b = { (real)strtod(argv[4],NULL), (real)strtod(argv[5],NULL), (real)strtod(argv[6],NULL) };
+        vec(real,3)  c = cross3(a,b);
+        vec(real,3)  d = cross3(b,a);
+
+        printf("array vector vec_countof countof alignof sizeof\n");
+        printf("%5b %6b %11zu %7zu %7zu %6zu\n", isarray(a), isvector(a),vec_countof(a),countof(a), alignof(a), sizeof(a));
+        printf("%5b %6b %11zu %7zu %7zu %6zu\n", isarray(b), isvector(b),vec_countof(b),countof(b), alignof(b), sizeof(b));
+
+        puts("");
+
+        printf("dot3(a,b) = %+e\n", dot3(a,b));
+        printf("dot3(b,a) = %+e\n", dot3(b,a));
+        printf("cross3(a,b) = [%+e %+e %+e]\n", c[0],c[1],c[2]);
+        printf("cross3(b,a) = [%+e %+e %+e]\n", d[0],d[1],d[2]);
         exit(EXIT_SUCCESS);
 }
 ```
