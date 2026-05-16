@@ -215,6 +215,8 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 - [muparser](https://github.com/beltoforion/muparser)
 ### NVIDIA
 - [cutlass](https://github.com/NVIDIA/cutlass/)
+- [MathLib](https://github.com/NVIDIA-RTX/MathLib/)
+- [RTXCR-Geometry-Library](https://github.com/NVIDIA-RTX/RTXCR-Geometry-Library/)
 - [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/)
 ### Quake
 - [TrenchBroom/vm](https://github.com/TrenchBroom/TrenchBroom/tree/master/lib/vm)
