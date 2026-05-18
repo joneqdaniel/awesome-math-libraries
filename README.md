@@ -178,6 +178,7 @@ static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 
 ## C++ Math Libraries
 ### General
+- [gtsam](https://github.com/borglab/gtsam)
 - [xcmath](https://github.com/xcrtp/xcmath)
 - [smath](https://github.com/slendidev/smath)
 - [wykobi](https://github.com/ArashPartow/wykobi/)
