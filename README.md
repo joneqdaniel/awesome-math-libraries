@@ -41,44 +41,38 @@ enum class alg
 /* WARNING: vec_ext_countof(a) return different results in GCC/LLVM for non-power two element count */
 /* TODO: find a way to return vector element count for non-power of two vectors in GCC */
 /* vec_ext(t,n) for LLVM SIMD Vector Extension */
-#if defined(__clang__)
-#pragma pack(push,1)
-#define vec_ext(T,N) typeof(T __attribute__((ext_vector_type(N))))
-#pragma pack(pop)
 
+
+#define  vec(N,T) QALIGN((N == bitceil(N) ? N : 1) * alignof(N)) __typeof__(__typeof__(T)[N])
+#define avec(N,T) QALIGN(bitceil(N)) __typeof__(__typeof__(T)[N])
+
+#ifdef __clang__
+#pragma pack(push,1)
+#define evec(N,T) __attribute__((ext_vector_type(N))) __typeof__(T)
+#pragma pack(pop)
 #define rc_vec(src,n) (*(vec(typeof((src)[0]),n)*)__builtin_addressof(src))
-#define rc_vec_ext(src,n) (*(vec_ext(typeof((src)[0]),n)*)__builtin_addressof(src))
-#define vec_ext_countof(a) __builtin_vectorelements(rc_vec_ext(a,countof(a)))
+#define rc_evec(src,n) (*(evec(typeof((src)[0]),n)*)__builtin_addressof(src))
+#define evec_countof(a) __builtin_vectorelements(rc_evec(a,countof(a)))
 #define isvector(a) !isarray(a) && \
 __builtin_choose_expr( \
-bitceil(vec_ext_countof(a)) == countof(a),true,false)
-
-/* vec_ext(t,n) for GCC SIMD Vector Extension */
+bitceil(evec_countof(a)) == countof(a),true,false)
 #elif defined(__GNUC__)
 #pragma pack(push,1)
-#define vec_ext(T,N) typeof(T __attribute__((vector_size(bitceil(N) * alignof(T)))))
+#define evec(N,T) __attribute__((vector_size(bitceil(N) * alignof(T)))) __typeof__(T)
 #pragma pack(pop)
-
 #define rc_vec(src,n) (*(vec(typeof((src)[0]),n)*)&src)
-#define rc_vec_ext(src,n) (*(vec_ext(typeof((src)[0]),n)*)&src)
-#define vec_ext_countof(a) countof(a)
+#define rc_evec(src,n) (*(evec(typeof((src)[0]),n)*)&src)
+#define evec_countof(a) countof(a)
 #define isvector(a) !isarray(a) && \
-_Generic(__builtin_convertvector(rc_vec_ext(a,vec_ext_countof(a)), \
-         vec_ext(float,bitceil(vec_ext_countof(a)))), \
-         vec_ext(float,bitceil(vec_ext_countof(a))): true, \
+_Generic(__builtin_convertvector(rc_evec(a,evec_countof(a)), \
+         evec(float,bitceil(evec_countof(a)))), \
+         evec(float,bitceil(evec_countof(a))): true, \
          default: false)
-
-/* vec_ext(T,N) for Microsoft Visual Studio C++ compiler */
-#elif defined(_MSC_VER)
-#define vec_ext(T,N) typeof(T __declspec((align(sizeof(T)*bitceil(N))))[bitceil(N)])
-#warn "Your compiler doens't support vector extensions."
-#warn "Using aligned arrays without operators instead."
-
-/* vec_ext(T,N) for other compilers */
 #else
-#define vec_ext(T,N) typeof(T __attribute__((aligned(sizeof(T)*bitceil(N))))[bitceil(N)])
-#warn "Your compiler doens't support vector extensions."
-#warn "Using aligned arrays without operators instead."
+/* evec(T,N) for other compilers */
+#pragma pack(push,1)
+#define evec(N,T) avec(N,T)
+#pragma pack(pop)
 #endif
 ```
 Dot/Cross3 product example:
