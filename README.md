@@ -28,6 +28,28 @@ enum class alg
 #define INLINE __attribute__((always_inline),(nothrow),(const),(flatten)) inline
 #endif
 
+#if __STDC_VERSION__ < 202311L
+#ifndef _MSC_VER
+#include <stdalign.h>
+#endif
+#if !__alignas_is_defined
+#define alignas _Alignas
+#define __alignas_is_defined 1
+#endif
+#if !__alignof_is_defined
+#define alignof _Alignof
+#define __alignof_is_defined 1
+#endif
+#endif
+
+#ifdef _MSC_VER
+#define QALIGN(x) __declspec(align(x))
+#elif defined(__GNUC__) || defined(__clang__)
+#define QALIGN(x) __attribute__((aligned(x)))
+#else
+#define QALIGN(x)
+#endif
+
 #define BITOP_RUP01__(x) (             (x) | (             (x) >>  1))
 #define BITOP_RUP02__(x) (BITOP_RUP01__(x) | (BITOP_RUP01__(x) >>  2))
 #define BITOP_RUP04__(x) (BITOP_RUP02__(x) | (BITOP_RUP02__(x) >>  4))
@@ -40,28 +62,28 @@ enum class alg
 
 /* WARNING: vec_ext_countof(a) return different results in GCC/LLVM for non-power two element count */
 /* TODO: find a way to return vector element count for non-power of two vectors in GCC */
-/* vec_ext(t,n) for LLVM SIMD Vector Extension */
-
 
 #define  vec(N,T) QALIGN((N == bitceil(N) ? N : 1) * alignof(N)) __typeof__(__typeof__(T)[N])
 #define avec(N,T) QALIGN(bitceil(N)) __typeof__(__typeof__(T)[N])
 
 #ifdef __clang__
+/* evec(t,n) for LLVM SIMD Vector Extension */
 #pragma pack(push,1)
 #define evec(N,T) __attribute__((ext_vector_type(N))) __typeof__(T)
 #pragma pack(pop)
-#define rc_vec(src,n) (*(vec(typeof((src)[0]),n)*)__builtin_addressof(src))
-#define rc_evec(src,n) (*(evec(typeof((src)[0]),n)*)__builtin_addressof(src))
+#define rc_vec(src,n) (*(vec(__typeof__((src)[0]),n)*)__builtin_addressof(src))
+#define rc_evec(src,n) (*(evec(__typeof__((src)[0]),n)*)__builtin_addressof(src))
 #define evec_countof(a) __builtin_vectorelements(rc_evec(a,countof(a)))
 #define isvector(a) !isarray(a) && \
 __builtin_choose_expr( \
 bitceil(evec_countof(a)) == countof(a),true,false)
 #elif defined(__GNUC__)
+/* evec(t,n) for GCC SIMD vector types */
 #pragma pack(push,1)
-#define evec(N,T) __attribute__((vector_size(bitceil(N) * alignof(T)))) __typeof__(T)
+#define evec(n,t) __attribute__((vector_size(bitceil(n) * alignof(t)))) __typeof__(t)
 #pragma pack(pop)
-#define rc_vec(src,n) (*(vec(typeof((src)[0]),n)*)&src)
-#define rc_evec(src,n) (*(evec(typeof((src)[0]),n)*)&src)
+#define rc_vec(src,n) (*(vec(__typeof__((src)[0]),n)*)&src)
+#define rc_evec(src,n) (*(evec(__typeof__((src)[0]),n)*)&src)
 #define evec_countof(a) countof(a)
 #define isvector(a) !isarray(a) && \
 _Generic(__builtin_convertvector(rc_evec(a,evec_countof(a)), \
@@ -102,7 +124,7 @@ typedef float real;
 #define perm3(a,x,y,z,t,n)   (vec(t,n)){ (t)(a)[x], (t)(a)[y], (t)(a)[z] }
 #define perm4(a,x,y,z,w,t,n) (vec(t,n)){ (t)(a)[x], (t)(a)[y], (t)(a)[z], (t)(a)[w] }
 #define rc_cross3(a,b,t,n) perm3(a,1,2,0,t,n) * perm3(b,2,0,1,t,n) - perm3(a,2,0,1,t,n) * perm3(b,1,2,0,t,n)
-#define cross3(a,b) rc_cross3(a,b,typeof((rc_vec(a,3) * rc_vec(b,3))[0]),3)
+#define cross3(a,b) rc_cross3(a,b,__typeof__((rc_vec(a,3) * rc_vec(b,3))[0]),3)
 
 void usage(int argc, char** argv)
 {
@@ -137,15 +159,16 @@ struct alignas((N == N_POW2 ? N : 1) * alignof(T)) vec<T,N> : std::array<T,N> {}
 static_assert(countof(vec<T,N>) == N);
 static_assert(sizeof(vec<T,N>) == (N * sizeof(T)));
 ```
-#### GCC `typeof(T __attribute__((vector_size(N_POW2 * sizeof(T)))))`
+#### GCC `__attribute__((vector_size(bitceil(n) * alignof(t)))) __typeof__(t)`
 ```cpp
-#define vec(T,N) typeof(T __attribute__((vector_size(bitceil(N)))))
+#define evec(n,t) __attribute__((vector_size(bitceil(n) * alignof(t)))) __typeof__(t)
 static_assert(countof(vec(T,N)) == bitceil(N));
 static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
-#### LLVM `typeof(T __attribute__((ext_vector_type(N))))`
+#### LLVM `__attribute__((ext_vector_type(N))) __typeof__(T)`
 ```cpp
-#define vec(T,N) typeof(T __attribute__((ext_vector_type(N))))
+```cpp
+#define evec(N,T) __attribute__((ext_vector_type(N))) __typeof__(T)
 static_assert(__builtin_vectorelements(vec(T,N)) == N && countof(vec(T,N)) == bitceil(N));
 static_assert(sizeof(vec(T,N)) == (bitceil(N) * sizeof(T)));
 ```
