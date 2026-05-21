@@ -58,7 +58,7 @@ enum class alg
 
 #define bitceil(x) (const uint32_t)(BITOP_RUP16__(((uint32_t)(x)) - 1) + 1)
 #define countof(x) sizeof(x)/sizeof((x)[0]) 
-#define isarray(a) __builtin_choose_expr(__builtin_types_compatible_p(typeof((a)[0]) [], typeof((a))), true, false)
+#define isarray(a) __builtin_choose_expr(__builtin_types_compatible_p(__typeof__((a)[0]) [], __typeof__((a))), true, false)
 
 /* WARNING: vec_ext_countof(a) return different results in GCC/LLVM for non-power two element count */
 /* TODO: find a way to return vector element count for non-power of two vectors in GCC */
@@ -71,7 +71,7 @@ enum class alg
 #pragma pack(push,1)
 #define evec(N,T) __attribute__((ext_vector_type(N))) __typeof__(T)
 #pragma pack(pop)
-#define rc_vec(src,n) (*(vec(__typeof__((src)[0]),n)*)__builtin_addressof(src))
+#define rc_avec(src,n) (*(avec(__typeof__((src)[0]),n)*)__builtin_addressof(src))
 #define rc_evec(src,n) (*(evec(__typeof__((src)[0]),n)*)__builtin_addressof(src))
 #define evec_countof(a) __builtin_vectorelements(rc_evec(a,countof(a)))
 #define isvector(a) !isarray(a) && \
@@ -82,7 +82,7 @@ bitceil(evec_countof(a)) == countof(a),true,false)
 #pragma pack(push,1)
 #define evec(n,t) __attribute__((vector_size(bitceil(n) * alignof(t)))) __typeof__(t)
 #pragma pack(pop)
-#define rc_vec(src,n) (*(vec(__typeof__((src)[0]),n)*)&src)
+#define rc_avec(src,n) (*(avec(__typeof__((src)[0]),n)*)&src)
 #define rc_evec(src,n) (*(evec(__typeof__((src)[0]),n)*)&src)
 #define evec_countof(a) countof(a)
 #define isvector(a) !isarray(a) && \
